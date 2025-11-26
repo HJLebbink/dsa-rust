@@ -1,0 +1,56 @@
+[package]
+name = "dsa-rust"
+version = "0.1.0"
+edition = "2021"
+authors = ["Henk-Jan Lebbink"]
+description = "Rust bindings for Intel Data Streaming Accelerator (DSA)"
+license = "MIT"
+repository = "https://github.com/your-repo/dsa-rust"
+keywords = ["intel", "dsa", "accelerator", "crc32", "memcpy"]
+categories = ["hardware-support", "no-std"]
+readme = "README.md"
+
+[features]
+default = ["std"]
+std = []
+async = ["tokio"]
+tokio = ["dep:tokio"]
+
+[dependencies]
+bitflags = "2.10"
+thiserror = "2.0"
+log = "0.4"
+
+# CRC32 software fallback (also used on Windows)
+crc32fast = "1.5"
+
+# Cleanup guard for resource management
+scopeguard = "1"
+
+# Optional async support
+tokio = { version = "1.48", features = ["rt", "sync"], optional = true }
+
+# Platform-specific dependencies
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Devices_DeviceAndDriverInstallation",
+    "Win32_System_Registry",
+] }
+
+[dev-dependencies]
+criterion = "0.7"
+
+[[bench]]
+name = "bench_dsa"
+harness = false
+
+[profile.release]
+lto = true
+codegen-units = 1
+
+[package.metadata.docs.rs]
+all-features = true
